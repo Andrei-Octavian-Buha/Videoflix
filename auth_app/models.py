@@ -30,15 +30,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    objects= UserManager()
-
+    
     USERNAME_FIELD='email'
-    REQUIRED_FIELDS=[]
-
+    REQUIRED_FIELDS=['username']
+    
+    objects= UserManager()
 
     def __str__(self):
         return self.email
     
 
-
+class EmailConfirmationToken(models.Model):
+    id = models.BigAutoField(primary_key=True,editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
