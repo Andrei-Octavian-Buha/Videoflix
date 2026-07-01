@@ -1,5 +1,9 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager , PermissionsMixin
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class UserManager(BaseUserManager):
     def create_user(self,email, password=None, username=None, **extra_fields):
@@ -38,9 +42,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-    
-
-class EmailConfirmationToken(models.Model):
-    id = models.BigAutoField(primary_key=True,editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
