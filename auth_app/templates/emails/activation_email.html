@@ -1,9 +1,31 @@
-<div style="font-family: sans-serif; text-align: center;">
-    <img src="https://DEINE_URL/logo.png" alt="Videoflix Logo" width="200">
-    <h2>Confirm your email</h2>
-    <p>Dear {{ user_name }},</p>
-    <p>Thank you for registering. Please click the button below to activate your account:</p>
-    <a href="{{ activation_link }}" style="background-color: #0044ff; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px;">
-        Activate account
-    </a>
-</div>
+<html>
+<body style="font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+    <table align="center" width="100%" max-width="600" style="background-color: #ffffff; padding: 40px; border-radius: 8px;">
+        <tr>
+            <td align="center">
+                <img src="https://raw.githubusercontent.com/Andrei-Octavian-Buha/Videoflix/refs/heads/main/static/images/Logo.svg" alt="Videoflix" width="200">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h2 style="color: #333;">Confirm your email</h2>
+                <p>Dear {{ user_name }},</p>
+                <p>Thank you for registering with <a href="http://localhost:4200">Videoflix</a>. To complete your registration and verify your email address, please click the link below:</p>
+            </td>
+        </tr>
+        <tr>
+            <td align="start" style="padding: 20px 0;">
+                <a href="{{ activation_link }}" style="background-color: #0044ff; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; display: inline-block;">
+                    Activate account
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>If you did not create an account with us, please disregard this email.</p>
+                <p>Best regards,<br><br>Your Videoflix Team.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
