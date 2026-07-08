@@ -155,7 +155,7 @@ class CookieLoginView(TokenObtainPairView):
             key="access_token",
             value=access,
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax",
         )
 
@@ -163,7 +163,7 @@ class CookieLoginView(TokenObtainPairView):
             key="refresh_token",
             value=refresh,
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax",
         )
         
@@ -218,7 +218,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             key="access_token",
             value=access_token,
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax",
         )
 
@@ -226,7 +226,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             key="refresh_token",
             value=new_refresh_token,
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax"
         )
 

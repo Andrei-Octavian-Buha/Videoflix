@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import transaction
 
 # Create your models here.
 class Video(models.Model):
@@ -17,5 +18,12 @@ class Video(models.Model):
     raw_video_file = models.FileField(upload_to='videos/raw/')
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            from .tasks import convert_video_to_hls
+            transaction.on_commit(lambda: convert_video_to_hls.delay(self.id))
     def __str__(self):
         return self.title

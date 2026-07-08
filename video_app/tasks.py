@@ -18,7 +18,7 @@ def convert_video_to_hls(video_id):
         '1080p': {'scale': '1920:1080', 'bitrate': '3000k'}
     }
     for res_name, config in resolutions.items():
-        processed_dir = os.path.join(settings.MEDIA_ROOT, 'videos','processed',f'movie_{video.id}', res_name)
+        processed_dir = os.path.join(settings.MEDIA_ROOT, 'videos',str(video.id), res_name)
         os.makedirs(processed_dir, exist_ok=True)
 
         output_playlist = os.path.join(processed_dir, 'index.m3u8')
@@ -27,7 +27,7 @@ def convert_video_to_hls(video_id):
         cmd = [
             'ffmpeg', '-y',
             '-i', raw_video_path,
-            '-vf', 'scale=1280:720',
+            '-vf', f"scale={config['scale']}",
             '-c:v', 'libx264',
             '-b:v', config['bitrate'],
             '-c:a', 'aac',
