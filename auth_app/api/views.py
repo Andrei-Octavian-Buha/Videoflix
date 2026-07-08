@@ -231,13 +231,3 @@ class CookieTokenRefreshView(TokenRefreshView):
         )
 
         return response
-    
-
-
-class TriggerEmailView(APIView):
-    def post(self, request):
-        email = request.data.get("email")
-        send_delayed_email_task(user_email=email, email_body="Welcome to the platform!")
-        return Response(
-            {"detail": "Task enqueued successfully! View returned in milliseconds."}
-        )
