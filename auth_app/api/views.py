@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
-from auth_app.tasks import send_delayed_email_task ,send_activation_email_task
+from auth_app.tasks import send_password_reset_mail_task ,send_activation_email_task
 
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 
@@ -41,6 +41,71 @@ class RegisterView(APIView):
                 }
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get("email")
+
+        if not email:
+            return Response(
+                {"error": "Email field is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            user = User.objects.get(email=email)
+            uidb64 = urlsafe_base64_encode(force_bytes(user.id))
+            token = default_token_generator.make_token(user)
+
+            send_password_reset_mail_task(
+                user_email=user.email,
+                uidb64=uidb64,
+                token=token,
+            )
+        except User.DoesNotExist:
+            pass
+
+        return Response(
+            {"detail":"An Email has been send to reset your password."},
+            status=status.HTTP_200_OK
+        )
+    
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        if not new_password or not confirm_password:
+            return Response(
+                {"error":"Both password fields are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+                )
+        
+        if new_password != confirm_password:
+            return Response(
+                {"error":"Passwords do not match."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response(
+                {"detail": "Your Password has been successfully reset."},
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(
+            {"error": "Invalid or expired token."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     
 class ActivateAccountView(APIView):
     permission_classes = [AllowAny]
