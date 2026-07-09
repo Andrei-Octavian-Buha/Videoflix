@@ -1,34 +1,66 @@
-# Authentication API
+# Videoflix
 
-A Django REST Framework authentication backend that provides a complete user authentication system with JWT authentication, email verification, password reset functionality, and Docker support.
+**Developer Akademie School Project**
+
+A backend video streaming platform built with **Django REST Framework**. The application provides secure JWT authentication and automatically converts uploaded videos into multiple streaming resolutions (480p, 720p, and 1080p) using FFmpeg.
 
 ---
 
 ## Features
 
-- Custom User model
-- JWT Authentication
-- User Registration
-- User Login
-- Email Verification
-- Password Reset via Email
-- Authentication Permissions
-- Email Templates
-- CORS Support for Frontend Development
-- Docker & Docker Compose Support
-- REST API built with Django REST Framework
+### Authentication
+
+* Custom User model
+* User registration
+* User login
+* JWT authentication
+* Email verification
+* Password reset via email
+* Protected API endpoints
+* Custom permissions
+
+### Video Management
+
+* Video upload through Django Admin
+* Automatic video conversion after upload
+* Multiple video resolutions generated automatically:
+
+  * 480p
+  * 720p
+  * 1080p
+* Stream videos according to the available resolutions
+* Video metadata management
+
+### Administration
+
+* Django Admin Panel
+* User management
+* Video management
+* Authentication management
 
 ---
 
-## Tech Stack
+## Technologies Used
 
-- Python 3
-- Django
-- Django REST Framework
-- Simple JWT
-- PostgreSQL (recommended)
-- Docker
-- Docker Compose
+### Backend
+
+* Python
+* Django
+* Django REST Framework
+* Simple JWT
+
+### Database
+
+* PostgreSQL
+
+### Video Processing
+
+* FFmpeg
+
+### Containerization
+
+* Docker
+* Docker Compose
 
 ---
 
@@ -36,9 +68,9 @@ A Django REST Framework authentication backend that provides a complete user aut
 
 ```text
 .
-├── auth_app/              # Authentication logic
-├── core/                  # Project configuration
-├── video_app/             # Video application (future module)
+├── auth_app/              # Authentication application
+├── video_app/             # Video management and streaming
+├── core/                  # Django project configuration
 ├── static/
 │   └── images/
 ├── manage.py
@@ -52,39 +84,80 @@ A Django REST Framework authentication backend that provides a complete user aut
 
 ---
 
-## Installation
+## How the Application Works
 
-### Clone the repository
+### User Flow
+
+1. A user creates an account.
+2. The user verifies their email address.
+3. The user logs into the application.
+4. The server returns a JWT access token.
+5. The authenticated user can access protected endpoints and watch available videos.
+
+---
+
+### Video Upload Flow
+
+1. The administrator uploads a video through the Django Admin Panel.
+2. The uploaded video is stored on the server.
+3. FFmpeg automatically processes the original video.
+4. Three additional versions of the video are generated:
+
+   * 480p
+   * 720p
+   * 1080p
+5. Users can stream the available resolutions.
+
+---
+
+# Installation
+
+## Prerequisites
+
+Before running the project, make sure you have installed:
+
+* Docker
+* Docker Compose
+* Git
+
+---
+
+## Clone the Repository
 
 ```bash
 git clone <repository-url>
-cd authentication-api
+cd Videoflix
 ```
 
 ---
 
 ## Environment Variables
 
-Copy the template file.
+Create a `.env` file from the provided template.
 
 ```bash
 cp .env.template .env
 ```
 
-Update the environment variables according to your local setup.
-
-Example:
+Configure the required environment variables, for example:
 
 ```env
 DEBUG=True
 
-SECRET_KEY=your-secret-key
+SECRET_KEY=your_secret_key
 
-DB_NAME=database_name
-DB_USER=database_user
-DB_PASSWORD=database_password
+DB_NAME=videoflix
+DB_USER=postgres
+DB_PASSWORD=postgres
 DB_HOST=db
 DB_PORT=5432
+
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@example.com
+DJANGO_SUPERUSER_PASSWORD=admin123
+
+REDIS_HOST=redis
+REDIS_PORT=6379
 
 EMAIL_HOST=
 EMAIL_PORT=
@@ -95,217 +168,159 @@ EMAIL_USE_TLS=True
 
 ---
 
-## Running without Docker
+## Run the Application
 
-Create a virtual environment.
-
-```bash
-python -m venv venv
-```
-
-Activate it.
-
-Linux/macOS
-
-```bash
-source venv/bin/activate
-```
-
-Windows
-
-```powershell
-venv\Scripts\activate
-```
-
-Install dependencies.
-
-```bash
-pip install -r requirements.txt
-```
-
-Apply migrations.
-
-```bash
-python manage.py migrate
-```
-
-Create a superuser.
-
-```bash
-python manage.py createsuperuser
-```
-
-Run the server.
-
-```bash
-python manage.py runserver
-```
-
-The API will be available at:
-
-```
-http://127.0.0.1:8000/
-```
-
----
-
-## Running with Docker
-
-Build and start the containers.
+Build and start all containers.
 
 ```bash
 docker compose up --build
 ```
 
-Run migrations.
+The application starts three services:
 
-```bash
-docker compose exec backend python manage.py migrate
-```
+* **PostgreSQL** – Database
+* **Redis** – Background task queue
+* **Django Backend** – REST API and video processing
 
-Create a superuser.
+---
 
-```bash
-docker compose exec backend python manage.py createsuperuser
-```
+## Automatic Startup Process
 
-The application will be available at:
+When the backend container starts, the entrypoint script automatically performs the following steps:
+
+1. Waits until PostgreSQL is available.
+2. Collects static files.
+3. Creates and applies database migrations.
+4. Creates a Django superuser (if one does not already exist).
+5. Starts the Django RQ worker for background jobs.
+6. Starts the Gunicorn application server.
+
+No manual migration or superuser creation is required.
+
+---
+
+## Access the Application
+
+Backend API:
 
 ```
 http://localhost:8000/
 ```
 
----
+Django Admin:
 
-## Authentication Flow
+```
+http://localhost:8000/admin/
+```
 
-1. Register a new account.
-2. Receive an email verification link.
-3. Verify your email.
-4. Login with your credentials.
-5. Receive JWT Access and Refresh tokens.
-6. Use the Access token to authenticate protected endpoints.
-7. Refresh the Access token when it expires.
+Login using the superuser credentials defined in your `.env` file.
 
 ---
 
-## Main API Endpoints
-
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| POST | `/api/auth/register/` | Register a new user |
-| POST | `/api/auth/login/` | Login |
-| POST | `/api/auth/logout/` | Logout |
-| POST | `/api/auth/token/refresh/` | Refresh JWT token |
-| POST | `/api/auth/password-reset/` | Request password reset |
-| POST | `/api/auth/password-reset-confirm/` | Confirm password reset |
-| GET | `/api/auth/verify-email/` | Verify email address |
-
-> Adjust endpoint URLs if your project uses different routes.
-
----
-
-## Development
-
-Run migrations after model changes.
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-Collect static files.
-
-```bash
-python manage.py collectstatic
-```
-
----
-
-## Docker Commands
-
-Start containers.
-
-```bash
-docker compose up
-```
-
-Start in detached mode.
-
-```bash
-docker compose up -d
-```
-
-Stop containers.
+## Stopping the Application
 
 ```bash
 docker compose down
 ```
 
-Rebuild containers.
+To remove the containers and volumes:
 
 ```bash
-docker compose up --build
+docker compose down -v
 ```
 
-View logs.
+---
+
+## Useful Docker Commands
+
+View running containers:
+
+```bash
+docker ps
+```
+
+View application logs:
 
 ```bash
 docker compose logs -f
 ```
 
+Restart the backend:
+
+```bash
+docker compose restart web
+```
+
+Rebuild after dependency changes:
+
+```bash
+docker compose up --build
+```
+
 ---
 
-## Project Modules
+## Video Processing
+
+The Docker image includes **FFmpeg**, which is used to process uploaded videos.
+
+Whenever an administrator uploads a video through the Django Admin Panel, the application automatically creates three optimized versions:
+
+* 480p
+* 720p
+* 1080p
+
+The conversion is handled as a background task using **Django RQ** and **Redis**, allowing users to continue using the application while the video is processed.
+
+
+## Main Project Components
 
 ### auth_app
 
-Contains:
+Responsible for:
 
-- Custom User model
-- Authentication
-- Registration
-- Login
-- JWT
-- Email verification
-- Password reset
-- Permissions
-- User manager
+* User authentication
+* Registration
+* Login
+* JWT token management
+* Email verification
+* Password reset
+* Custom user model
+
+### video_app
+
+Responsible for:
+
+* Video upload
+* Video storage
+* Video processing
+* Resolution conversion
+* Video streaming
 
 ### core
 
 Contains:
 
-- Django settings
-- URL configuration
-- Middleware
-- CORS configuration
-- Global project settings
-
-### video_app
-
-Module reserved for video-related functionality.
+* Project settings
+* URL routing
+* Middleware
+* Global configuration
+* CORS configuration
 
 ---
 
 ## Future Improvements
 
-- OAuth (Google/GitHub)
-- Two-Factor Authentication (2FA)
-- User Profile API
-- Rate Limiting
-- Swagger / OpenAPI Documentation
-- Unit & Integration Tests
-- CI/CD Pipeline
-
----
-
-## License
-
-This project is licensed under the MIT License.
+* Adaptive streaming using HLS
+* Video thumbnails
+* Search videos
+* Categories
+* User watch history
+* Favorites
+* Video comments
+* Unit and integration tests
 
 ---
 
 ## Author
 
-Developed by **Andy**.
+**Andy**
