@@ -3,6 +3,13 @@ from django.db import transaction
 
 # Create your models here.
 class Video(models.Model):
+    """
+    Represents a video entity in the system. Stores metadata, thumbnail, 
+    and the raw video file.
+
+    Upon saving a new instance, the model triggers an asynchronous task 
+    to convert the raw video file into HLS format for streaming.
+    """
     CHATEGORY_COICES = [
         ('General','General'),
         ('Drama','Drama'),
@@ -20,6 +27,14 @@ class Video(models.Model):
 
 
     def save(self, *args, **kwargs):
+        """
+        Overrides the default save method to trigger an asynchronous HLS 
+        conversion task specifically when a new video record is created.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        """
         is_new = self.pk is None
         super().save(*args, **kwargs)
         if is_new:

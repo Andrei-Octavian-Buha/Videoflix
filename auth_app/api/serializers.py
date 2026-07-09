@@ -5,6 +5,11 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
+    """
+    Serializer for handling user registration. Validates password matching 
+    and email uniqueness, then creates a user instance using the custom 
+    UserManager.
+    """
     confirmed_password = serializers.CharField(write_only=True)
     class Meta:
         model = User 

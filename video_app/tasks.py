@@ -6,6 +6,21 @@ from .models import Video
 
 @job('default')
 def convert_video_to_hls(video_id):
+    """
+    Asynchronously processes a raw video file by encoding it into multiple 
+    HLS (HTTP Live Streaming) resolutions (480p, 720p, 1080p) using FFmpeg.
+
+    This function iterates through defined resolutions, creates appropriate 
+    output directories, and executes FFmpeg commands to generate .m3u8 
+    playlists and segmented .ts files.
+
+    Args:
+        video_id (int): The primary key of the Video model instance to process.
+
+    Returns:
+        str: A status message confirming the completion of the conversion process 
+             for the specified video title.
+    """
     try:
         video = Video.objects.get(id=video_id)
     except Video.DoesNotExist:

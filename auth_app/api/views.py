@@ -15,7 +15,10 @@ from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 User = get_user_model()
 
 class RegisterView(APIView):
-
+    """
+    Handles new user registration by validating input, saving the user, 
+    and triggering an account activation email task.
+    """
     permission_classes = [AllowAny]
     
     def post(self, request):
@@ -43,6 +46,10 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class PasswordResetRequestView(APIView):
+    """
+    Handles password reset requests by identifying the user by email
+    and triggering an asynchronous password reset email task.
+    """
     permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get("email")
@@ -71,6 +78,10 @@ class PasswordResetRequestView(APIView):
         )
     
 class PasswordResetView(APIView):
+    """
+    Validates password reset tokens and updates the user's password if the
+    provided token and user ID are valid.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request, uidb64, token):
@@ -108,6 +119,10 @@ class PasswordResetView(APIView):
         )
     
 class ActivateAccountView(APIView):
+    """
+    Activates a user's account by verifying the unique activation token 
+    sent via email.
+    """
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
@@ -130,6 +145,10 @@ class ActivateAccountView(APIView):
         )
     
 class CookieLoginView(TokenObtainPairView):
+    """
+    Authenticates users and returns access/refresh tokens set as 
+    HTTP-only, Lax-site cookies for secure authentication.
+    """
     serializer_class =CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -170,6 +189,10 @@ class CookieLoginView(TokenObtainPairView):
         return response
     
 class CookieLogoutView(APIView):
+    """
+    Logs out the user by blacklisting their refresh token and 
+    clearing authentication cookies from the browser.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -191,7 +214,10 @@ class CookieLogoutView(APIView):
         return response 
     
 class CookieTokenRefreshView(TokenRefreshView):
-    
+    """
+    Refreshes expired access tokens using a valid refresh token 
+    stored in cookies and updates the cookie values.
+    """
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get("refresh_token")
         if refresh_token is None:
