@@ -114,15 +114,17 @@ A backend video streaming platform built with **Django REST Framework**. The app
 
 ## Prerequisites
 
-Before running the project, make sure you have installed:
+Before running the project, make sure the following software is installed on your machine:
 
-* Docker
-* Docker Compose
-* Git
+- Git
+- Docker
+- Docker Compose
+
+> **Note:** Python, Django, PostgreSQL, Redis, FFmpeg, and all project dependencies are installed automatically inside the Docker containers. No local Python environment is required.
 
 ---
 
-## Clone the Repository
+## 1. Clone the Repository
 
 ```bash
 git clone <repository-url>
@@ -131,7 +133,7 @@ cd Videoflix
 
 ---
 
-## Environment Variables
+## 2. Create the Environment File
 
 Create a `.env` file from the provided template.
 
@@ -139,84 +141,85 @@ Create a `.env` file from the provided template.
 cp .env.template .env
 ```
 
-Configure the required environment variables, for example:
-
-```env
-DEBUG=True
-
-SECRET_KEY=your_secret_key
-
-DB_NAME=videoflix
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=db
-DB_PORT=5432
-
-DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=admin123
-
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-EMAIL_HOST=
-EMAIL_PORT=
-EMAIL_HOST_USER=
-EMAIL_HOST_PASSWORD=
-EMAIL_USE_TLS=True
-```
+The template contains default values for local development, including a development `SECRET_KEY`.
 
 ---
 
-## Run the Application
+## 3. Build and Start the Application
 
-Build and start all containers.
+Build the Docker image and start all required services.
 
 ```bash
 docker compose up --build
 ```
 
-The application starts three services:
+During startup, the backend automatically:
 
-* **PostgreSQL** – Database
-* **Redis** – Background task queue
-* **Django Backend** – REST API and video processing
+- Waits for the PostgreSQL database to become available.
+- Collects static files.
+- Creates and applies database migrations.
+- Creates a Django superuser (if one does not already exist).
+- Starts the Django RQ worker.
+- Launches the Gunicorn application server.
+
+The following services will be running:
+
+- **PostgreSQL** – Database
+- **Redis** – Background task queue
+- **Django Backend** – REST API and video processing
 
 ---
 
-## Automatic Startup Process
+## 4. (Optional) Generate a New Django Secret Key
 
-When the backend container starts, the entrypoint script automatically performs the following steps:
+The `.env.template` file contains a development `SECRET_KEY`. For better security, you can generate your own unique key after the containers are running.
 
-1. Waits until PostgreSQL is available.
-2. Collects static files.
-3. Creates and applies database migrations.
-4. Creates a Django superuser (if one does not already exist).
-5. Starts the Django RQ worker for background jobs.
-6. Starts the Gunicorn application server.
+Run the following command:
 
-No manual migration or superuser creation is required.
+```bash
+docker compose exec web python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Copy the generated key and replace the `SECRET_KEY` value in your `.env` file.
+
+Example:
+
+```env
+SECRET_KEY=your_generated_secret_key
+```
+
+---
+
+## 5. Restart the Application
+
+Restart the containers to apply the new `SECRET_KEY`.
+
+```bash
+docker compose down
+docker compose up
+```
 
 ---
 
 ## Access the Application
 
-Backend API:
+Once the containers are running, the application will be available at:
+
+### Backend API
 
 ```
 http://localhost:8000/
 ```
 
-Django Admin:
+### Django Admin
 
 ```
 http://localhost:8000/admin/
 ```
 
-Login using the superuser credentials defined in your `.env` file.
+Log in using the superuser credentials defined in your `.env` file.
 
 ---
-
 ## Stopping the Application
 
 ```bash
