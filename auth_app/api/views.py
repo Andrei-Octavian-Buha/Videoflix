@@ -57,7 +57,7 @@ class PasswordResetRequestView(APIView):
             uidb64 = urlsafe_base64_encode(force_bytes(user.id))
             token = default_token_generator.make_token(user)
 
-            send_password_reset_mail_task(
+            send_password_reset_mail_task.delay(
                 user_email=user.email,
                 uidb64=uidb64,
                 token=token,
