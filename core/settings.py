@@ -188,7 +188,6 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 
 APPEND_SLASH = False
 
-# settings.py
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://127.0.0.1:5500')
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
