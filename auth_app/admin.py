@@ -1,7 +1,11 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UsernameField
 from .models import User
 # Register your models here.
+
 
 class CustomUserAdmin(UserAdmin):
     """
@@ -24,7 +28,8 @@ class CustomUserAdmin(UserAdmin):
         ("Permissions & Groups", {"fields": ("groups", "user_permissions")}),
         ("Important Dates", {"fields": ("created_at", "updated_at")}),
     )
-    
+
+
     readonly_fields = ('created_at', 'updated_at')
 
 admin.site.register(User, CustomUserAdmin)
