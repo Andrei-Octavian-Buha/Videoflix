@@ -79,6 +79,6 @@ def convert_video_to_hls(video_id):
             output_playlist
         ]
 
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, timeout=600)
 
     return f"Finished converting video {video.title} to 720p HLS."

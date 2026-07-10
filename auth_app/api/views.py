@@ -194,7 +194,7 @@ class CookieLogoutView(APIView):
     Logs out the user by blacklisting their refresh token and 
     clearing authentication cookies from the browser.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get("refresh_token")
