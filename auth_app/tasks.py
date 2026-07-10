@@ -15,7 +15,7 @@ def send_password_reset_mail_task(user_email,uidb64, token):
         token (str): The security token for the password reset verification.
     """
     context = {
-        'reset_link':f"http://127.0.0.1:8000/api/password_confirm/{uidb64}/{token}/",
+        'reset_link':f"{settings.FRONTEND_URL}/pages/auth/confirm_password.html?uid={uidb64}&token={token}",
         'from_email' : settings.DEFAULT_FROM_EMAIL,
     }
     send_videoflix_mail("Reset your password","password_reset_email",context, user_email)
@@ -34,7 +34,7 @@ def send_activation_email_task(user_email, uidb64, token):
         token (str): The security token for account verification.
     """
     context = {
-        'activation_link' : f"http://127.0.0.1:8000/api/activate/{uidb64}/{token}/",
+        'activation_link' : f"{settings.FRONTEND_URL}/pages/auth/activate.html?uid={uidb64}&token={token}",
         'from_email' : settings.DEFAULT_FROM_EMAIL,
         'user_name' : user_email
     }

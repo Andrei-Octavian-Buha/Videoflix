@@ -40,7 +40,7 @@ class RegisterView(APIView):
                     "id": user.id,
                     "email": user.email,
                 },
-                "token": token
+                "token": "activation_token"
                 }
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -133,6 +133,7 @@ class ActivateAccountView(APIView):
             user = None
         if user is not None and default_token_generator.check_token(user,token):
             user.is_verified = True
+            user.is_active = True
             user.save()
 
             return Response(
