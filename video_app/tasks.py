@@ -2,6 +2,7 @@ import os
 import subprocess
 from django.conf import settings
 from django_rq import job
+from django.core.files import File
 from .models import Video
 
 @job('default')
@@ -27,11 +28,35 @@ def convert_video_to_hls(video_id):
         return f"Video {video_id} not found"
     
     raw_video_path = video.raw_video_file.path
+    base_dir = os.path.dirname(raw_video_path)
+
+    thumbnail_filename = f"thumb_{video.id}.jpg"
+    temp_thumbnail_path = os.path.join(base_dir, thumbnail_filename)
+
+    thumb_cmd = [
+        'ffmpeg', '-y',
+        '-ss', '00:00:02',
+        '-i', raw_video_path,
+        '-vframes', '1',
+        '-q:v', '2',
+        temp_thumbnail_path
+    ]
+
+    try:
+        subprocess.run(thumb_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        with open(temp_thumbnail_path, 'rb') as f:
+            video.thumbnail.save(thumbnail_filename, File(f), save=True)
+        if os.path.exists(temp_thumbnail_path):
+            os.remove(temp_thumbnail_path)
+    except subprocess.CalledProcessError as e:
+        print(f"Error thumbnail was not generated for {video.id}:{e.stderr.decode()}")
+
     resolutions = {
         '480p': {'scale': '854:480', 'bitrate': '800k'},
         '720p': {'scale': '1280:720', 'bitrate': '1500k'},
         '1080p': {'scale': '1920:1080', 'bitrate': '3000k'}
     }
+
     for res_name, config in resolutions.items():
         processed_dir = os.path.join(settings.MEDIA_ROOT, 'videos',str(video.id), res_name)
         os.makedirs(processed_dir, exist_ok=True)

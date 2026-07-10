@@ -10,7 +10,21 @@ class CustomUserAdmin(UserAdmin):
     """
     model = User
     ordering = ('email',)
-    list_display = ('email','is_verified','is_staff','created_at',)
-    search_fields = ('email', 'is_staff')
-    fieldsets = ((None, {"fields":("email","password")}),)
+    
+    list_display = ('email', 'username', 'is_verified', 'is_active', 'is_staff', 'created_at',)
+    
+    list_filter = ('is_verified', 'is_active', 'is_staff', 'is_superuser')
+    
+    search_fields = ('email', 'username')
+    
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Personal Info", {"fields": ("username",)}),
+        ("Statuses & Verification", {"fields": ("is_verified", "is_active", "is_staff", "is_superuser")}),
+        ("Permissions & Groups", {"fields": ("groups", "user_permissions")}),
+        ("Important Dates", {"fields": ("created_at", "updated_at")}),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+
 admin.site.register(User, CustomUserAdmin)
